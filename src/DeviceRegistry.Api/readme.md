@@ -5,9 +5,6 @@ DeviceRegistry.Api är tjänsten som hanterar **tenants** (organisationer/kunder
 - **Tenants**: Representerar en kund eller ett kontorshotell (t.ex. "Innovia Hub").
 - **Devices**: Representerar en sensor/enhet som tillhör en tenant, identifierad med ett unikt `serial`.
 
-## Översikt
-- **Tenants**: Representerar en kund eller ett kontorshotell (t.ex. "Innovia Hub").
-- **Devices**: Representerar en sensor/enhet som tillhör en tenant, identifierad med ett unikt `serial`.
 
 ## Bas-URL
 Som standard kör tjänsten på:
