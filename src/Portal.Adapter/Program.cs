@@ -8,7 +8,24 @@ builder.Services.AddDbContext<PortalDbContext>(o =>
         ?? "Host=localhost;Username=postgres;Password=password;Database=innovia_ingest"
     )
 );
+
+// Add cors to allow frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
+
 var app = builder.Build();
+// Use CORS
+app.UseCors("AllowFrontend");
+
 // Ensure database and tables exist (quick-start dev convenience)
 using (var scope = app.Services.CreateScope())
 {

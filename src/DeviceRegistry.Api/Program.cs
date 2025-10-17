@@ -6,7 +6,23 @@ builder.Services.AddDbContext<InnoviaDbContext>(o =>
     o.UseNpgsql(builder.Configuration.GetConnectionString("Db")));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add cors to allow frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
 var app = builder.Build();
+
+// Use CORS
+app.UseCors("AllowFrontend");
 
 // Ensure database and tables exist (quick-start dev convenience)
 using (var scope = app.Services.CreateScope())
@@ -67,7 +83,25 @@ app.MapGet("/api/tenants/{tenantId:guid}/devices/by-serial/{serial}",
     return d is null ? Results.NotFound() : Results.Ok(d);
 });
 
+// -----------------Update a device------------------
+app.MapPatch("/api/tenants/{tenantId:guid}/devices/{deviceId:guid}", 
+    async (Guid tenantId, Guid deviceId, InnoviaDbContext db, Device updatedDevice) =>
+{
+    var d = await db.Devices.FirstOrDefaultAsync(x => x.TenantId == tenantId && x.Id == deviceId);
+    if (d == null) return Results.NotFound();
+
+    // Bara uppdatera fälten du vill ändra
+    d.Model = updatedDevice.Model ?? d.Model;
+    d.Serial = updatedDevice.Serial ?? d.Serial;
+    d.Status = updatedDevice.Status ?? d.Status;
+
+    await db.SaveChangesAsync();
+    return Results.Ok(d);
+});
+// ---------------------------------------------------
+
 app.Run();
+
 
 public class InnoviaDbContext : DbContext
 {

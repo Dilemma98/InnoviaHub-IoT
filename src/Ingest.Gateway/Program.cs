@@ -41,7 +41,24 @@ builder.Services.AddSingleton<HubConnection>(sp =>
 });
 builder.Services.AddSingleton<IRealtimePublisher, SignalRRealtimePublisher>();
 
+
+// Add cors to allow frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowCredentials();
+    });
+});
+
+
 var app = builder.Build();
+
+// Use CORS
+app.UseCors("AllowFrontend");
 
 // Start SignalR hub connection
 using (var scope = app.Services.CreateScope())
