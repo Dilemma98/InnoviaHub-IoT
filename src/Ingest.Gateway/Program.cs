@@ -8,6 +8,7 @@ using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Protocol;
 using System.Text.Json;
+using System.Formats.Asn1;
 
 var builder = WebApplication.CreateBuilder(args);
 // Trim noisy logs: hide EF Core SQL and HttpClient chatter
@@ -194,6 +195,7 @@ public class MeasurementRow
     public Guid DeviceId { get; set; }
     public string Type { get; set; } = "";
     public double Value { get; set; }
+    public string Unit { get; set; } = "";
 }
 public class MeasurementBatchValidator : AbstractValidator<MeasurementBatch>
 {
@@ -222,7 +224,8 @@ public class IngestService
                 TenantId = ids.TenantId,
                 DeviceId = ids.DeviceId,
                 Type = m.Type,
-                Value = m.Value
+                Value = m.Value,
+                Unit = m.Unit
             });
         }
         await _db.SaveChangesAsync();
@@ -230,7 +233,7 @@ public class IngestService
         // Publish in realtime
         foreach (var m in payload.Metrics)
         {
-            await _rt.PublishAsync(tenant, ids.DeviceId, m.Type, m.Value, payload.Timestamp);
+            await _rt.PublishAsync(tenant, ids.DeviceId, m.Type, m.Value, m.Unit, payload.Timestamp);
         }
     }
 }
@@ -279,7 +282,7 @@ public class RealtimeConfig
 
 public interface IRealtimePublisher
 {
-    Task PublishAsync(string tenantSlug, Guid deviceId, string type, double value, DateTimeOffset time);
+    Task PublishAsync(string tenantSlug, Guid deviceId, string type, double value, string unit, DateTimeOffset time);
 }
 
 public class SignalRRealtimePublisher : IRealtimePublisher
@@ -287,7 +290,7 @@ public class SignalRRealtimePublisher : IRealtimePublisher
     private readonly HubConnection _conn;
     public SignalRRealtimePublisher(HubConnection conn) => _conn = conn;
 
-    public async Task PublishAsync(string tenantSlug, Guid deviceId, string type, double value, DateTimeOffset time)
+    public async Task PublishAsync(string tenantSlug, Guid deviceId, string type, double value, string unit, DateTimeOffset time)
     {
         var payload = new
         {
@@ -295,6 +298,7 @@ public class SignalRRealtimePublisher : IRealtimePublisher
             DeviceId = deviceId,
             Type = type,
             Value = value,
+            Unit = unit,
             Time = time
         };
         await _conn.InvokeAsync("PublishMeasurement", payload);

@@ -36,6 +36,7 @@ var devices = new[]
     new { Id = "dev-109", ApiKey = "dev-109-key", Metrics = new[] {"smoke"}},
     new { Id = "dev-110", ApiKey = "dev-110-key", Metrics = new[] {"vibration"}},
 };
+
 // Create random
 var rand = new Random();
 
@@ -55,16 +56,16 @@ while (true)
             // and simulate value
             object metric = type switch
             {
-                "co2" => new { type, value = 800 + rand.Next(0, 500), unit = "ppm" },
-                "temperature" => new { type, value = 20 + rand.NextDouble() * 5, unit = "C" },
-                "humidity" => new { type, value = 30 + rand.NextDouble() * 40, unit = "%" },
-                "light" => new { type, value = 100 + rand.Next(0, 900), unit = "lux" },
-                "motion" => new { type, value = rand.Next(0, 2), unit = "bool" },
-                "sound" => new { type, value = 30 + rand.Next(0, 70), unit = "dB" },
-                "airQuality" => new { type, value = rand.Next(0, 500), unit = "AQI" },
-                "waterLeak" => new { type, value = rand.Next(0, 2), unit = "bool" },
-                "smoke" => new { type, value = rand.Next(0, 2), unit = "bool" },
-                "vibration" => new { type, value = Math.Round(rand.NextDouble() * 5, 2), unit = "m/s²" },
+                "co2" => new { type, value = 800 + rand.Next(0, 500), Unit = "ppm" },
+                "temperature" => new { type, value = 20 + rand.NextDouble() * 5, Unit = "C" },
+                "humidity" => new { type, value = 30 + rand.NextDouble() * 40, Unit = "%" },
+                "light" => new { type, value = 100 + rand.Next(0, 900), Unit = "lux" },
+                "motion" => new { type, value = rand.Next(0, 2), Unit = "bool" },
+                "sound" => new { type, value = 30 + rand.Next(0, 70), Unit = "dB" },
+                "airQuality" => new { type, value = rand.Next(0, 500), Unit = "AQI" },
+                "waterLeak" => new { type, value = rand.Next(0, 2), Unit = "bool" },
+                "smoke" => new { type, value = rand.Next(0, 2), Unit = "bool" },
+                "vibration" => new { type, value = Math.Round(rand.NextDouble() * 5, 2), Unit = "m/s²" },
                 _ => throw new Exception($"Unknown metric tye: {type}")
             };
 

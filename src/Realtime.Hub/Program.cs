@@ -36,8 +36,9 @@ public class TelemetryHub : Hub
 
 public record RealtimeMeasurement(
     string TenantSlug,
-    System.Guid DeviceId,
+    Guid DeviceId,
     string Type,
     double Value,
-    System.DateTimeOffset Time
+    string Unit,
+    DateTimeOffset Time
 );
