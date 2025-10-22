@@ -38,6 +38,7 @@ app.UseSwaggerUI(c =>
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "DeviceRegistry.Api v1");
     c.RoutePrefix = "swagger";
 });
+
 // Redirect root to Swagger UI for convenience
 app.MapGet("/", () => Results.Redirect("/swagger"));
 

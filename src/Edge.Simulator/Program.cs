@@ -3,9 +3,16 @@ using MQTTnet.Client;
 using System.Text.Json;
 using System.Text;
 
+// Create MQTT-client
 var factory = new MqttFactory();
 var client = factory.CreateMqttClient();
 
+// Read devices and it's measurments-list
+var path = Path.Combine(AppContext.BaseDirectory, "Data", "devices.json");
+var json = await File.ReadAllTextAsync(path);
+var devices = JsonSerializer.Deserialize<List<Device>>(json);
+
+// Configure MQTT-connection
 var options = new MqttClientOptionsBuilder()
     .WithTcpServer("localhost", 1883)
     .Build();
@@ -22,54 +29,31 @@ catch (Exception ex)
     throw;
 }
 
-// Create list of all simulated devices/sensors
-var devices = new[]
-{
-    new { Id = "dev-101", ApiKey = "dev-101-key", Metrics = new[] {"co2"}},
-    new { Id = "dev-102", ApiKey = "dev-102-key", Metrics = new[] {"temperature"}},
-    new { Id = "dev-103", ApiKey = "dev-103-key", Metrics = new[] {"humidity"}},
-    new { Id = "dev-104", ApiKey = "dev-104-key", Metrics = new[] {"light"}},
-    new { Id = "dev-105", ApiKey = "dev-105-key", Metrics = new[] {"motion"}},
-    new { Id = "dev-106", ApiKey = "dev-106-key", Metrics = new[] {"sound"}},
-    new { Id = "dev-107", ApiKey = "dev-107-key", Metrics = new[] {"airQuality"}},
-    new { Id = "dev-108", ApiKey = "dev-108-key", Metrics = new[] {"waterLeak"}},
-    new { Id = "dev-109", ApiKey = "dev-109-key", Metrics = new[] {"smoke"}},
-    new { Id = "dev-110", ApiKey = "dev-110-key", Metrics = new[] {"vibration"}},
-};
 
-// Create random
+// Create random-generator
 var rand = new Random();
 
-// Simulate new data incoming continuously
+// Loop continuously and send measurements-data
 while (true)
 {
     // Loop through every device in list
-    foreach (var device in devices)
+    foreach (var device in devices!)
     {
-        // Create list to obtain measurements
         var metricsList = new List<object>();
-
-        // Loop through every metrics-type in devices
-        foreach (var type in device.Metrics)
+        // Loop through every metric in devices metrics-list
+        foreach (var metric in device.Metrics)
         {
-            // Define how object Metric should look like
-            // and simulate value
-            object metric = type switch
-            {
-                "co2" => new { type, value = 800 + rand.Next(0, 500), Unit = "ppm" },
-                "temperature" => new { type, value = 20 + rand.NextDouble() * 5, Unit = "C" },
-                "humidity" => new { type, value = 30 + rand.NextDouble() * 40, Unit = "%" },
-                "light" => new { type, value = 100 + rand.Next(0, 900), Unit = "lux" },
-                "motion" => new { type, value = rand.Next(0, 2), Unit = "bool" },
-                "sound" => new { type, value = 30 + rand.Next(0, 70), Unit = "dB" },
-                "airQuality" => new { type, value = rand.Next(0, 500), Unit = "AQI" },
-                "waterLeak" => new { type, value = rand.Next(0, 2), Unit = "bool" },
-                "smoke" => new { type, value = rand.Next(0, 2), Unit = "bool" },
-                "vibration" => new { type, value = Math.Round(rand.NextDouble() * 5, 2), Unit = "m/s²" },
-                _ => throw new Exception($"Unknown metric tye: {type}")
-            };
 
-            metricsList.Add(metric);
+            double value = metric.Unit == "bool"
+                ? rand.Next(0, 2)
+                : metric.Min + rand.NextDouble() * (metric.Max - metric.Min);
+
+            metricsList.Add(new
+            {
+                type = metric.Type,
+                value = Math.Round(value, 2),
+                Unit = metric.Unit
+            });
         }
 
         // Create payload object to send
@@ -88,22 +72,26 @@ while (true)
 
         // Serialize payload-object to JSON-text
         // (what's acutally sent to MQTT)
-        var json = JsonSerializer.Serialize(payload);
+        var jsonPayload = JsonSerializer.Serialize(payload);
 
         // Create MQTT-message
         // - WithTopic defines which topic the message is sent to
         // - WithPayload contains the data itself (as bytes)
         var message = new MqttApplicationMessageBuilder()
             .WithTopic(topic)
-            .WithPayload(Encoding.UTF8.GetBytes(json))
+            .WithPayload(Encoding.UTF8.GetBytes(jsonPayload))
             .Build();
 
         // Publish message to MQTT-broker (Mosquitto)
         // Represents measuring-updates
         await client.PublishAsync(message);
-        Console.WriteLine($"Sent to {topic}: {json}");
-    }
+        Console.WriteLine($"Sent to {topic}: {jsonPayload}");
 
-    // Update every 10 seconds
-    await Task.Delay(TimeSpan.FromSeconds(10));
+    }  
+        // Update every 5 seconds
+        await Task.Delay(TimeSpan.FromSeconds(5));
 }
+
+// Records for MetricsList and Devices in json-file
+public record MetricDef(string Type, string Unit, double Min, double Max);
+public record Device(string Id, string ApiKey, List<MetricDef> Metrics);
