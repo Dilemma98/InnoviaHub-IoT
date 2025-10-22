@@ -1,6 +1,6 @@
 namespace Innovia.Shared.DTOs;
 
-public record MetricDto(string Type, double Value, string? Unit);
+public record MetricDto(string Type, double Value, string Unit);
 public class MeasurementBatch
 {
     public string DeviceId { get; set; } = default!;

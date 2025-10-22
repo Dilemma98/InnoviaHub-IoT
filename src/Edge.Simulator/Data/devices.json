@@ -1,0 +1,73 @@
+ [
+    { 
+      "Id": "dev-101", 
+      "ApiKey": "dev-101-key", 
+      "Metrics": [
+        { "Type": "co2", "Unit": "ppm", "Min": 400, "Max": 2000 }
+      ]
+    },
+    { 
+      "Id": "dev-102", 
+      "ApiKey": "dev-102-key", 
+      "Metrics": [
+        { "Type": "temperature", "Unit": "°C", "Min": 15, "Max": 30 }
+      ]
+    },
+    { 
+      "Id": "dev-103", 
+      "ApiKey": "dev-103-key", 
+      "Metrics": [
+        { "Type": "humidity", "Unit": "%", "Min": 20, "Max": 80 }
+      ]
+    },
+    { 
+      "Id": "dev-104", 
+      "ApiKey": "dev-104-key", 
+      "Metrics": [
+        { "Type": "light", "Unit": "lux", "Min": 0, "Max": 2000 }
+      ]
+    },
+    { 
+      "Id": "dev-105", 
+      "ApiKey": "dev-105-key", 
+      "Metrics": [
+        { "Type": "motion", "Unit": "bool", "Min": 0, "Max": 1 }
+      ]
+    },
+    { 
+      "Id": "dev-106", 
+      "ApiKey": "dev-106-key", 
+      "Metrics": [
+        { "Type": "sound", "Unit": "dB", "Min": 20, "Max": 100 }
+      ]
+    },
+    { 
+      "Id": "dev-107", 
+      "ApiKey": "dev-107-key", 
+      "Metrics": [
+        { "Type": "airQuality", "Unit": "aqi", "Min": 0, "Max": 500 }
+      ]
+    },
+    { 
+      "Id": "dev-108", 
+      "ApiKey": "dev-108-key", 
+      "Metrics": [
+        { "Type": "waterLeak", "Unit": "bool", "Min": 0, "Max": 1 }
+      ]
+    },
+    { 
+      "Id": "dev-109", 
+      "ApiKey": "dev-109-key", 
+      "Metrics": [
+        { "Type": "smoke", "Unit": "bool", "Min": 0, "Max": 1 }
+      ]
+    },
+    { 
+      "Id": "dev-110", 
+      "ApiKey": "dev-110-key", 
+      "Metrics": [
+        { "Type": "vibration", "Unit": "m/s²", "Min": 0, "Max": 5 }
+      ]
+    }
+  ]
+

@@ -6,6 +6,11 @@
   <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
+  <!-- Make sure Data-folder copy to bin/Debug -->
+  <None Include="Data\devices.json">
+  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+</None>
+
     <PackageReference Include="MQTTnet" Version="4.3.4.1084" />
   </ItemGroup>
 </Project>
