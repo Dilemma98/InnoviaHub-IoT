@@ -30,7 +30,14 @@ public class TelemetryHub : Hub
     public async Task PublishMeasurement(RealtimeMeasurement m)
     {
         await Clients.Group($"tenant:{m.TenantSlug}")
-            .SendAsync("measurementReceived", m);
+            .SendAsync("measurementReceived", new
+            {
+                deviceId = m.DeviceId.ToString(),
+                type = m.Type,
+                value = m.Value,
+                unit = m.Unit,
+                timestamp = m.Time.ToString("o")
+            });
     }
 }
 
